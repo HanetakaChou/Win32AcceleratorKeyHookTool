@@ -1,9 +1,70 @@
 #include <sdkddkver.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+
 #include <ShellAPI.h>
+
 #include <string.h>
 #include <assert.h>
+
+static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, ::WPARAM wParam, ::LPARAM lParam);
+
+static LRESULT CALLBACK _Internal_WindProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
+{
+	{
+		ATOM hAtom;
+		WNDCLASSEXW wc;
+		wc.cbSize = sizeof(WNDCLASSEXW);
+		wc.style = 0U;
+		wc.lpfnWndProc = &_Internal_WindProc;
+		wc.cbClsExtra = 0;
+		wc.cbWndExtra = sizeof(void *);
+		wc.hInstance = hInstance;
+		wc.hIcon = ::LoadIconW(NULL, IDI_SHIELD);
+		wc.hCursor = ::LoadCursorW(NULL, IDC_ARROW);
+		wc.hbrBackground = ::GetSysColorBrush(COLOR_WINDOW);
+		wc.lpszMenuName = NULL;
+		wc.lpszClassName = { L"Win32HotKeyHookTool-Class:0XFFFFFFFF" };
+		wc.hIconSm = NULL;
+		hAtom = ::RegisterClassExW(&wc);
+		assert(hAtom != 0);
+
+		BOOL bRet;
+
+		HWND hDesktop = ::GetDesktopWindow();
+		HMONITOR hMonitor = ::MonitorFromWindow(hDesktop, MONITOR_DEFAULTTONEAREST);
+		MONITORINFOEXW MonitorInfo;
+		MonitorInfo.cbSize = sizeof(MONITORINFOEXW);
+		bRet = ::GetMonitorInfoW(hMonitor, &MonitorInfo);
+		assert(bRet != 0);
+
+		RECT rect;
+		rect.left = (MonitorInfo.rcWork.left + MonitorInfo.rcWork.right) / 2 - 160;
+		rect.right = (MonitorInfo.rcWork.left + MonitorInfo.rcWork.right) / 2 + 160;
+		rect.top = (MonitorInfo.rcWork.top + MonitorInfo.rcWork.bottom) / 2 - 80;
+		rect.bottom = (MonitorInfo.rcWork.top + MonitorInfo.rcWork.bottom) / 2 + 80;
+		bRet = ::AdjustWindowRectEx(&rect, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, FALSE, WS_EX_APPWINDOW);
+		assert(bRet != 0);
+
+		HWND hWnd = ::CreateWindowExW(WS_EX_APPWINDOW, MAKEINTATOM(hAtom), L"Windows桌面系统热键拦截", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, hDesktop, NULL, hInstance, NULL);
+		assert(hWnd != NULL);
+	}
+
+	BOOL bRet;
+	MSG msg;
+	while ((bRet = ::GetMessageW(&msg, NULL, 0, 0)) != 0)
+	{
+		assert(bRet != -1);
+
+		::TranslateMessage(&msg);
+		::DispatchMessageW(&msg);
+	}
+
+	assert(msg.message == WM_QUIT);
+	return static_cast<int>(msg.wParam);
+}
 
 static HWND _Internal_ButtonAltF4 = NULL;
 static HWND _Internal_ButtonAltTab = NULL;
@@ -152,59 +213,4 @@ static LRESULT CALLBACK _Internal_WindProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
 		}
 	}
 	}
-}
-
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
-{
-	{
-		ATOM hAtom;
-		WNDCLASSEXW wc;
-		wc.cbSize = sizeof(WNDCLASSEXW);
-		wc.style = 0U;
-		wc.lpfnWndProc = &_Internal_WindProc;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = sizeof(void *);
-		wc.hInstance = hInstance;
-		wc.hIcon = ::LoadIconW(NULL, IDI_SHIELD);
-		wc.hCursor = ::LoadCursorW(NULL, IDC_ARROW);
-		wc.hbrBackground = ::GetSysColorBrush(COLOR_WINDOW);
-		wc.lpszMenuName = NULL;
-		wc.lpszClassName = { L"Win32HotKeyHookTool-Class:0XFFFFFFFF" };
-		wc.hIconSm = NULL;
-		hAtom = ::RegisterClassExW(&wc);
-		assert(hAtom != 0);
-
-		BOOL bRet;
-
-		HWND hDesktop = ::GetDesktopWindow();
-		HMONITOR hMonitor = ::MonitorFromWindow(hDesktop, MONITOR_DEFAULTTONEAREST);
-		MONITORINFOEXW MonitorInfo;
-		MonitorInfo.cbSize = sizeof(MONITORINFOEXW);
-		bRet = ::GetMonitorInfoW(hMonitor, &MonitorInfo);
-		assert(bRet != 0);
-
-		RECT rect;
-		rect.left = (MonitorInfo.rcWork.left + MonitorInfo.rcWork.right) / 2 - 160;
-		rect.right = (MonitorInfo.rcWork.left + MonitorInfo.rcWork.right) / 2 + 160;
-		rect.top = (MonitorInfo.rcWork.top + MonitorInfo.rcWork.bottom) / 2 - 80;
-		rect.bottom = (MonitorInfo.rcWork.top + MonitorInfo.rcWork.bottom) / 2 + 80;
-		bRet = ::AdjustWindowRectEx(&rect, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, FALSE, WS_EX_APPWINDOW);
-		assert(bRet != 0);
-
-		HWND hWnd = ::CreateWindowExW(WS_EX_APPWINDOW, MAKEINTATOM(hAtom), L"Windows桌面系统热键拦截", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, hDesktop, NULL, hInstance, NULL);
-		assert(hWnd != NULL);
-	}
-
-	BOOL bRet;
-	MSG msg;
-	while ((bRet = ::GetMessageW(&msg, NULL, 0, 0)) != 0)
-	{
-		assert(bRet != -1);
-
-		::TranslateMessage(&msg);
-		::DispatchMessageW(&msg);
-	}
-
-	assert(msg.message == WM_QUIT);
-	return static_cast<int>(msg.wParam);
 }

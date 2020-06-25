@@ -1,3 +1,4 @@
+Ôªø
 #include <sdkddkver.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -7,210 +8,249 @@
 #include <string.h>
 #include <assert.h>
 
-static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, ::WPARAM wParam, ::LPARAM lParam);
+#include "resource.h"
 
-static LRESULT CALLBACK _Internal_WindProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#ifndef HINST_THISCOMPONENT
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+#define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
+#endif
+
+static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
 {
-	{
-		ATOM hAtom;
-		WNDCLASSEXW wc;
-		wc.cbSize = sizeof(WNDCLASSEXW);
-		wc.style = 0U;
-		wc.lpfnWndProc = &_Internal_WindProc;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = sizeof(void *);
-		wc.hInstance = hInstance;
-		wc.hIcon = ::LoadIconW(NULL, IDI_SHIELD);
-		wc.hCursor = ::LoadCursorW(NULL, IDC_ARROW);
-		wc.hbrBackground = ::GetSysColorBrush(COLOR_WINDOW);
-		wc.lpszMenuName = NULL;
-		wc.lpszClassName = { L"Win32HotKeyHookTool-Class:0XFFFFFFFF" };
-		wc.hIconSm = NULL;
-		hAtom = ::RegisterClassExW(&wc);
-		assert(hAtom != 0);
+	assert(hInstance == HINST_THISCOMPONENT);
 
-		BOOL bRet;
-
-		HWND hDesktop = ::GetDesktopWindow();
-		HMONITOR hMonitor = ::MonitorFromWindow(hDesktop, MONITOR_DEFAULTTONEAREST);
-		MONITORINFOEXW MonitorInfo;
-		MonitorInfo.cbSize = sizeof(MONITORINFOEXW);
-		bRet = ::GetMonitorInfoW(hMonitor, &MonitorInfo);
-		assert(bRet != 0);
-
-		RECT rect;
-		rect.left = (MonitorInfo.rcWork.left + MonitorInfo.rcWork.right) / 2 - 160;
-		rect.right = (MonitorInfo.rcWork.left + MonitorInfo.rcWork.right) / 2 + 160;
-		rect.top = (MonitorInfo.rcWork.top + MonitorInfo.rcWork.bottom) / 2 - 80;
-		rect.bottom = (MonitorInfo.rcWork.top + MonitorInfo.rcWork.bottom) / 2 + 80;
-		bRet = ::AdjustWindowRectEx(&rect, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, FALSE, WS_EX_APPWINDOW);
-		assert(bRet != 0);
-
-		HWND hWnd = ::CreateWindowExW(WS_EX_APPWINDOW, MAKEINTATOM(hAtom), L"Windows◊¿√ÊœµÕ≥»»º¸¿πΩÿ", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, hDesktop, NULL, hInstance, NULL);
-		assert(hWnd != NULL);
-	}
-
-	BOOL bRet;
-	MSG msg;
-	while ((bRet = ::GetMessageW(&msg, NULL, 0, 0)) != 0)
-	{
-		assert(bRet != -1);
-
-		::TranslateMessage(&msg);
-		::DispatchMessageW(&msg);
-	}
-
-	assert(msg.message == WM_QUIT);
-	return static_cast<int>(msg.wParam);
+	return static_cast<int>(DialogBoxW(hInstance, MAKEINTRESOURCE(IDD_DIALOG), GetDesktopWindow(), _Internal_DlgProc));
 }
 
-static HWND _Internal_ButtonAltF4 = NULL;
-static HWND _Internal_ButtonAltTab = NULL;
-static HWND _Internal_ButtonLeftWin = NULL;
-static HHOOK _Internal_hHook = NULL;
+static bool _Internal_Hook_AltF4 = false;
+static bool _Internal_Hook_AltTab = false;
+static bool _Internal_Hook_LWin = false;
+static bool _Internal_Hook_ESC = false;
 
-static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, ::WPARAM wParam, ::LPARAM lParam)
+static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (nCode >= 0)
 	{
-		::KBDLLHOOKSTRUCT *pKeyboardLowLevel = reinterpret_cast<::KBDLLHOOKSTRUCT *>(lParam);
+		KBDLLHOOKSTRUCT *pKeyboardLowLevel = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
+
 		switch (pKeyboardLowLevel->vkCode)
 		{
 		case VK_F4:
 		{
-			if (
-				!(pKeyboardLowLevel->flags & LLKHF_EXTENDED)//Not Extended Key
-				&& (pKeyboardLowLevel->flags & LLKHF_ALTDOWN)//ALT Key Pressed
-				&& !(pKeyboardLowLevel->flags & LLKHF_UP)//Being Pressed
-				)
+			assert(pKeyboardLowLevel->vkCode == VK_F4);
+
+			if (_Internal_Hook_AltF4)
 			{
-				if (::SendMessageW(_Internal_ButtonAltF4, BM_GETCHECK, 0U, 0U) == BST_CHECKED)
-					return 1;//Hook Alt+F4
+				if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+					&& (pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Pressed
+					&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+
+				{
+					return 1; //Hook Alt+F4
+				}
 			}
 		}
 		break;
+
 		case VK_TAB:
 		{
-			if (
-				!(pKeyboardLowLevel->flags & LLKHF_EXTENDED)//Not Extended Key
-				&& (pKeyboardLowLevel->flags & LLKHF_ALTDOWN)//ALT Key Pressed
-				&& !(pKeyboardLowLevel->flags & LLKHF_UP)//Being Pressed
-				)
+			assert(pKeyboardLowLevel->vkCode == VK_TAB);
+
+			if (_Internal_Hook_AltTab)
 			{
-				if (::SendMessageW(_Internal_ButtonAltTab, BM_GETCHECK, 0U, 0U) == BST_CHECKED)
-					return 1;//Hook Alt+Tab
+				if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+					&& (pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Pressed
+					&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+				{
+					return 1; //Hook Alt+Tab
+				}
 			}
 		}
 		break;
+
 		case VK_LWIN:
 		{
-			if (
-				(pKeyboardLowLevel->flags & LLKHF_EXTENDED)//Extended Key
-				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN)//ALT Key Not Pressed
-				&& !(pKeyboardLowLevel->flags & LLKHF_UP)//Being Pressed
-				)
+			assert(pKeyboardLowLevel->vkCode == VK_LWIN);
+
+			if (_Internal_Hook_LWin)
 			{
-				if (::SendMessageW(_Internal_ButtonLeftWin, BM_GETCHECK, 0U, 0U) == BST_CHECKED)
-					return 1;//Hook Left Win
+				if ((pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Extended Key
+					//&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+					&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+				{
+					return 1; //Hook L-Win
+				}
+			}
+		}
+		break;
+
+		case VK_ESCAPE:
+		{
+			assert(pKeyboardLowLevel->vkCode == VK_ESCAPE);
+
+			if (_Internal_Hook_ESC)
+			{
+				if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+					// && !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+					&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+				{
+					return 1; //Hook ESC
+				}
 			}
 		}
 		break;
 		}
 	}
-	return ::CallNextHookEx(NULL, nCode, wParam, lParam);
 
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-static LRESULT CALLBACK _Internal_WindProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static HHOOK _Internal_hHook = NULL;
+
+static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
-	case WM_CREATE:
+	case WM_INITDIALOG:
 	{
-		_Internal_ButtonAltF4 = ::CreateWindowExW(0U, L"Button", L"∆¡±ŒAlt+F4", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 25, 20, 250, 20, hWnd, NULL, NULL, NULL);
-		assert(_Internal_ButtonAltF4 != NULL);
-		_Internal_ButtonAltTab = ::CreateWindowExW(0U, L"Button", L"∆¡±ŒAlt+Tab", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 25, 50, 250, 20, hWnd, NULL, NULL, NULL);
-		assert(_Internal_ButtonAltTab != NULL);
-		_Internal_ButtonLeftWin = ::CreateWindowExW(0U, L"Button", L"∆¡±Œ◊ÛWin", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 25, 80, 250, 20, hWnd, NULL, NULL, NULL);
-		assert(_Internal_ButtonLeftWin != NULL);
-		_Internal_hHook = ::SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
+		assert(uMsg == WM_INITDIALOG);
+
+		SetClassLongPtrW(hWnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(LoadIconW(HINST_THISCOMPONENT, MAKEINTRESOURCEW(IDI_ICON))));
+
+		LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_ALTF4, BM_SETCHECK, (_Internal_Hook_AltF4 ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res1 == 0);
+		LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_ALTTAB, BM_SETCHECK, (_Internal_Hook_AltTab ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res2 == 0);
+		LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_LWIN, BM_SETCHECK, (_Internal_Hook_LWin ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res3 == 0);
+		LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_ESC, BM_SETCHECK, (_Internal_Hook_ESC ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res4 == 0);
+
+		_Internal_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
 		assert(_Internal_hHook != NULL);
-		return 0;
 	}
+	return TRUE;
+
+	case WM_COMMAND:
+	{
+		assert(uMsg == WM_COMMAND);
+
+		switch (LOWORD(wParam))
+		{
+		case IDC_ALTF4:
+		{
+			_Internal_Hook_AltF4 = (SendDlgItemMessageW(hWnd, IDC_ALTF4, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_ALTTAB:
+		{
+			_Internal_Hook_AltTab = (SendDlgItemMessageW(hWnd, IDC_ALTTAB, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_LWIN:
+		{
+			_Internal_Hook_LWin = (SendDlgItemMessageW(hWnd, IDC_LWIN, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_ESC:
+		{
+			_Internal_Hook_ESC = (SendDlgItemMessageW(hWnd, IDC_ESC, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		default:
+			return FALSE;
+		}
+	}
+
+	//ÊúÄÂ∞èÂåñÂà∞Á≥ªÁªüÊ†è
 	case WM_CLOSE:
 	{
-		::SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+		assert(uMsg == WM_CLOSE);
 
-		//◊Ó–°ªØµΩœµÕ≥¿∏
+		SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+
 		NOTIFYICONDATAW nid;
 		nid.cbSize = sizeof(NOTIFYICONDATAW);
 		nid.hWnd = hWnd;
 		nid.uID = 7U;
 		nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP | NIF_INFO | NIF_SHOWTIP;
-		nid.uCallbackMessage = (WM_APP + 7U);
-		nid.hIcon = reinterpret_cast<HICON>(::GetClassLongPtrW(hWnd, GCLP_HICONSM));
-		::wcscpy_s(nid.szTip, 64U, L"Windows◊¿√ÊœµÕ≥»»º¸¿πΩÿ");
-		::wcscpy_s(nid.szInfo, 200U, L"◊Ûº¸À´ª˜ªπ‘≠\r\n”“º¸À´ª˜ÕÀ≥ˆ\r\n◊˜’ﬂ£∫’≈”««");
+		nid.uCallbackMessage = (WM_APP + 13U);
+		nid.hIcon = LoadIconW(HINST_THISCOMPONENT, MAKEINTRESOURCEW(IDI_ICON));
+		wcsncpy_s(nid.szTip, L"Win32HotKeyHookTool", 64U);
+		wcsncpy_s(nid.szInfo, L"Double click left mouse button to restore!\r\nDouble click right mouse button to exit!\r\nAuthor - YuqiaoZhang <yuqiaozhang@aliyun.com>!", 200U);
 		nid.uVersion = NOTIFYICON_VERSION_4;
-		::wcscpy_s(nid.szInfoTitle, 48U, L"Windows◊¿√ÊœµÕ≥»»º¸¿πΩÿ»‘‘⁄‘À––÷–");
+		wcsncpy_s(nid.szInfoTitle, L"\"Win32HotKeyHookTool\" is still running!", 48U);
 		nid.dwInfoFlags = NIIF_NONE;
-		BOOL bRet = ::Shell_NotifyIconW(NIM_ADD, &nid);
-		assert(bRet != 0);
+		BOOL _res = Shell_NotifyIconW(NIM_ADD, &nid);
+		assert(_res != FALSE);
 
 		return 0;
 	}
-	case WM_DESTROY:
-	{
-		BOOL bRet = ::UnhookWindowsHookEx(_Internal_hHook);
-		assert(bRet != 0);
+	SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+	return TRUE;
 
-		::PostQuitMessage(0U);
-		return 0;
-	}
-	default:
+	//Á≥ªÁªüÊ†è
+	case (WM_APP + 13U):
 	{
-		return ::DefWindowProcW(hWnd, uMsg, wParam, lParam);
+		assert(uMsg == (WM_APP + 13U));
 
-	}
-	//œµÕ≥¿∏
-	case (WM_APP + 7U):
-	{
-		switch (LOWORD(lParam))//œµÕ≥¿∏œ˚œ¢
+		switch (LOWORD(lParam))//Á≥ªÁªüÊ†èÊ∂àÊÅØ
 		{
-		case WM_LBUTTONDBLCLK://Ω” ’œµÕ≥¿∏œ˚œ¢µƒ¥∞ø⁄ø…“‘√ª”–CS_DBLCLKS
+		case WM_LBUTTONDBLCLK://Êé•Êî∂Á≥ªÁªüÊ†èÊ∂àÊÅØÁöÑÁ™óÂè£ÂèØ‰ª•Ê≤°ÊúâCS_DBLCLKS
 		{
-			NOTIFYICONDATAW nid;
-			nid.cbSize = sizeof(NOTIFYICONDATAW);
-			nid.hWnd = hWnd;
-			nid.uID = 7U;
-			BOOL bRet = ::Shell_NotifyIconW(NIM_DELETE, &nid);
-			assert(bRet != 0);
-
-			//ªπ‘≠
-			::SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-			return 0;
-		}
-		case WM_RBUTTONDBLCLK://Ω” ’œµÕ≥¿∏œ˚œ¢µƒ¥∞ø⁄ø…“‘√ª”–CS_DBLCLKS
-		{
-			BOOL bRet;
+			assert(LOWORD(lParam) == WM_LBUTTONDBLCLK);
 
 			NOTIFYICONDATAW nid;
 			nid.cbSize = sizeof(NOTIFYICONDATAW);
 			nid.hWnd = hWnd;
 			nid.uID = 7U;
-			bRet = ::Shell_NotifyIconW(NIM_DELETE, &nid);
+			BOOL bRet = Shell_NotifyIconW(NIM_DELETE, &nid);
 			assert(bRet != 0);
 
-			//ÕÀ≥ˆ
-			bRet = ::DestroyWindow(hWnd);
-			assert(bRet != 0);
-			return 0;
+			//ËøòÂéü
+			SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case WM_RBUTTONDBLCLK://Êé•Êî∂Á≥ªÁªüÊ†èÊ∂àÊÅØÁöÑÁ™óÂè£ÂèØ‰ª•Ê≤°ÊúâCS_DBLCLKS
+		{
+			assert(LOWORD(lParam) == WM_RBUTTONDBLCLK);
+
+			NOTIFYICONDATAW nid;
+			nid.cbSize = sizeof(NOTIFYICONDATAW);
+			nid.hWnd = hWnd;
+			nid.uID = 7U;
+			BOOL _res1 = Shell_NotifyIconW(NIM_DELETE, &nid);
+			assert(_res1 != FALSE);
+
+			//ÈÄÄÂá∫
+			BOOL _res2 = UnhookWindowsHookEx(_Internal_hHook);
+			assert(_res2 != FALSE);
+
+			BOOL _res3 = EndDialog(hWnd, 0);
+			assert(_res3 != FALSE);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
 		default:
-			return ::DefWindowProcW(hWnd, uMsg, wParam, lParam);
+			return FALSE;
 		}
 	}
+
+	default:
+		return FALSE;
 	}
 }
+

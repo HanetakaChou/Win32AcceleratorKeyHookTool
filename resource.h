@@ -8,6 +8,24 @@
 #define IDC_ALTTAB                      1002
 #define IDC_LWIN                        1003
 #define IDC_ESC                         1004
+#define IDC_ENABLEQQFO                  1005
+#define IDC_DISABLEQQFO                 1006
+#define IDC_TAB                         1007
+#define IDC_Q                           1008
+#define IDC_W                           1009
+#define IDC_E                           1010
+#define IDC_R                           1011
+#define IDC_T                           1012
+#define IDC_1                           1013
+#define IDC_2                           1014
+#define IDC_3                           1015
+#define IDC_4                           1016
+#define IDC_5                           1017
+#define IDC_A                           1018
+#define IDC_S                           1019
+#define IDC_D                           1020
+#define IDC_F                           1021
+#define IDC_G                           1022
 
 // Next default values for new objects
 // 
@@ -15,7 +33,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        104
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1006
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

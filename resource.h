@@ -21,11 +21,12 @@
 #define IDC_3                           1015
 #define IDC_4                           1016
 #define IDC_5                           1017
-#define IDC_A                           1018
-#define IDC_S                           1019
-#define IDC_D                           1020
-#define IDC_F                           1021
-#define IDC_G                           1022
+#define IDC_6                           1018
+#define IDC_A                           1019
+#define IDC_S                           1020
+#define IDC_D                           1021
+#define IDC_F                           1022
+#define IDC_G                           1023
 
 // Next default values for new objects
 // 

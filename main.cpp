@@ -30,6 +30,7 @@ static bool _Internal_Hook_LWin = false;
 static bool _Internal_Hook_ESC = false;
 
 static bool _Internal_Hook_Tab = false;
+static bool _Internal_Hook_6 = false;
 static bool _Internal_Hook_Q = false;
 static bool _Internal_Hook_W = false;
 static bool _Internal_Hook_E = false;
@@ -131,6 +132,40 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 		break;
 
 		//-QQFO----------------------------------	
+		case '6':
+		{
+			assert(pKeyboardLowLevel->vkCode == '6');
+
+			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+
+			{
+				if (_Internal_Hook_6)
+				{
+					INPUT _inputs[2];
+					_inputs[0].type = INPUT_KEYBOARD;
+					_inputs[0].ki.wVk = VK_F5;
+					_inputs[0].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[0].ki.dwFlags = 0;
+					_inputs[0].ki.time = 0;
+					_inputs[0].ki.dwExtraInfo = 0;
+					_inputs[1].type = INPUT_KEYBOARD;
+					_inputs[1].ki.wVk = VK_F5;
+					_inputs[1].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[1].ki.time = 0;
+					_inputs[1].ki.dwExtraInfo = 0;
+					UINT _res = SendInput(2, _inputs, sizeof(INPUT));
+					assert(_res != 0U);
+
+					return 1; //Hook '6'
+				}
+			}
+		}
+		break;
+
 		case 'Q':
 		{
 			assert(pKeyboardLowLevel->vkCode == 'Q');
@@ -159,7 +194,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(2, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook 'R'
+					return 1; //Hook 'Q'
 				}
 			}
 
@@ -194,7 +229,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(2, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook 'R'
+					return 1; //Hook 'W'
 				}
 			}
 
@@ -229,7 +264,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(2, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook 'R'
+					return 1; //Hook 'E'
 				}
 			}
 
@@ -299,7 +334,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(2, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook 'R'
+					return 1; //Hook 'T'
 				}
 			}
 
@@ -642,7 +677,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook '5'
+					return 1; //Hook 'A'
 				}
 			}
 		}
@@ -699,7 +734,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook '5'
+					return 1; //Hook 'S'
 				}
 			}
 		}
@@ -756,7 +791,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook '5'
+					return 1; //Hook 'D'
 				}
 			}
 		}
@@ -813,7 +848,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook '5'
+					return 1; //Hook 'F'
 				}
 			}
 		}
@@ -870,7 +905,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook '5'
+					return 1; //Hook 'G'
 				}
 			}
 		}
@@ -906,36 +941,38 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_TAB, BM_SETCHECK, (_Internal_Hook_Tab ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res5 == 0);
-		LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_Q, BM_SETCHECK, (_Internal_Hook_Q ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_6, BM_SETCHECK, (_Internal_Hook_6 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res6 == 0);
-		LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_W, BM_SETCHECK, (_Internal_Hook_W ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_Q, BM_SETCHECK, (_Internal_Hook_Q ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res7 == 0);
-		LRESULT _res8 = SendDlgItemMessageW(hWnd, IDC_E, BM_SETCHECK, (_Internal_Hook_E ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res8 = SendDlgItemMessageW(hWnd, IDC_W, BM_SETCHECK, (_Internal_Hook_W ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res8 == 0);
-		LRESULT _res9 = SendDlgItemMessageW(hWnd, IDC_R, BM_SETCHECK, (_Internal_Hook_R ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res9 = SendDlgItemMessageW(hWnd, IDC_E, BM_SETCHECK, (_Internal_Hook_E ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res9 == 0);
-		LRESULT _res10 = SendDlgItemMessageW(hWnd, IDC_T, BM_SETCHECK, (_Internal_Hook_T ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res10 = SendDlgItemMessageW(hWnd, IDC_R, BM_SETCHECK, (_Internal_Hook_R ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res10 == 0);
-		LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_1, BM_SETCHECK, (_Internal_Hook_1 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_T, BM_SETCHECK, (_Internal_Hook_T ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res11 == 0);
-		LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_2, BM_SETCHECK, (_Internal_Hook_2 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_1, BM_SETCHECK, (_Internal_Hook_1 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res12 == 0);
-		LRESULT _res13 = SendDlgItemMessageW(hWnd, IDC_3, BM_SETCHECK, (_Internal_Hook_3 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res13 = SendDlgItemMessageW(hWnd, IDC_2, BM_SETCHECK, (_Internal_Hook_2 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res13 == 0);
-		LRESULT _res14 = SendDlgItemMessageW(hWnd, IDC_4, BM_SETCHECK, (_Internal_Hook_4 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res14 = SendDlgItemMessageW(hWnd, IDC_3, BM_SETCHECK, (_Internal_Hook_3 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res14 == 0);
-		LRESULT _res15 = SendDlgItemMessageW(hWnd, IDC_5, BM_SETCHECK, (_Internal_Hook_5 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res15 = SendDlgItemMessageW(hWnd, IDC_4, BM_SETCHECK, (_Internal_Hook_4 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res15 == 0);
-		LRESULT _res16 = SendDlgItemMessageW(hWnd, IDC_A, BM_SETCHECK, (_Internal_Hook_A ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res16 = SendDlgItemMessageW(hWnd, IDC_5, BM_SETCHECK, (_Internal_Hook_5 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res16 == 0);
-		LRESULT _res17 = SendDlgItemMessageW(hWnd, IDC_S, BM_SETCHECK, (_Internal_Hook_S ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res17 = SendDlgItemMessageW(hWnd, IDC_A, BM_SETCHECK, (_Internal_Hook_A ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res17 == 0);
-		LRESULT _res18 = SendDlgItemMessageW(hWnd, IDC_D, BM_SETCHECK, (_Internal_Hook_D ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res18 = SendDlgItemMessageW(hWnd, IDC_S, BM_SETCHECK, (_Internal_Hook_S ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res18 == 0);
-		LRESULT _res19 = SendDlgItemMessageW(hWnd, IDC_F, BM_SETCHECK, (_Internal_Hook_F ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res19 = SendDlgItemMessageW(hWnd, IDC_D, BM_SETCHECK, (_Internal_Hook_D ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res19 == 0);
-		LRESULT _res20 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, (_Internal_Hook_G ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res20 = SendDlgItemMessageW(hWnd, IDC_F, BM_SETCHECK, (_Internal_Hook_F ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res20 == 0);
+		LRESULT _res21 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, (_Internal_Hook_G ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res21 == 0);
 
 		_Internal_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
 		assert(_Internal_hHook != NULL);
@@ -980,38 +1017,41 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		{
 			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_TAB, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res1 == 0);
-			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_Q, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_6, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res2 == 0);
-			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_W, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_Q, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res3 == 0);
-			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_E, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_W, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res4 == 0);
-			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_R, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_E, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res5 == 0);
-			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_T, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_R, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res6 == 0);
-			LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_1, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_T, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res7 == 0);
-			LRESULT _res8 = SendDlgItemMessageW(hWnd, IDC_2, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res8 = SendDlgItemMessageW(hWnd, IDC_1, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res8 == 0);
-			LRESULT _res9 = SendDlgItemMessageW(hWnd, IDC_3, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res9 = SendDlgItemMessageW(hWnd, IDC_2, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res9 == 0);
-			LRESULT _res10 = SendDlgItemMessageW(hWnd, IDC_4, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res10 = SendDlgItemMessageW(hWnd, IDC_3, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res10 == 0);
-			LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_5, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_4, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res11 == 0);
-			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_A, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_5, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res12 == 0);
-			LRESULT _res13 = SendDlgItemMessageW(hWnd, IDC_S, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res13 = SendDlgItemMessageW(hWnd, IDC_A, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res13 == 0);
-			LRESULT _res14 = SendDlgItemMessageW(hWnd, IDC_D, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res14 = SendDlgItemMessageW(hWnd, IDC_S, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res14 == 0);
-			LRESULT _res15 = SendDlgItemMessageW(hWnd, IDC_F, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res15 = SendDlgItemMessageW(hWnd, IDC_D, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res15 == 0);
-			LRESULT _res16 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res16 = SendDlgItemMessageW(hWnd, IDC_F, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res16 == 0);
+			LRESULT _res17 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, BST_CHECKED, 0);
+			assert(_res17 == 0);
 
 			_Internal_Hook_Tab = true;
+			_Internal_Hook_6 = true;
 			_Internal_Hook_Q = true;
 			_Internal_Hook_W = true;
 			_Internal_Hook_E = true;
@@ -1035,38 +1075,41 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		{
 			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_TAB, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res1 == 0);
-			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_Q, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_6, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res2 == 0);
-			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_W, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_Q, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res3 == 0);
-			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_E, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_W, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res4 == 0);
-			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_R, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_E, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res5 == 0);
-			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_T, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_R, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res6 == 0);
-			LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_1, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_T, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res7 == 0);
-			LRESULT _res8 = SendDlgItemMessageW(hWnd, IDC_2, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res8 = SendDlgItemMessageW(hWnd, IDC_1, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res8 == 0);
-			LRESULT _res9 = SendDlgItemMessageW(hWnd, IDC_3, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res9 = SendDlgItemMessageW(hWnd, IDC_2, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res9 == 0);
-			LRESULT _res10 = SendDlgItemMessageW(hWnd, IDC_4, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res10 = SendDlgItemMessageW(hWnd, IDC_3, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res10 == 0);
-			LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_5, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_4, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res11 == 0);
-			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_A, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_5, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res12 == 0);
-			LRESULT _res13 = SendDlgItemMessageW(hWnd, IDC_S, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res13 = SendDlgItemMessageW(hWnd, IDC_A, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res13 == 0);
-			LRESULT _res14 = SendDlgItemMessageW(hWnd, IDC_D, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res14 = SendDlgItemMessageW(hWnd, IDC_S, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res14 == 0);
-			LRESULT _res15 = SendDlgItemMessageW(hWnd, IDC_F, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res15 = SendDlgItemMessageW(hWnd, IDC_D, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res15 == 0);
-			LRESULT _res16 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res16 = SendDlgItemMessageW(hWnd, IDC_F, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res16 == 0);
+			LRESULT _res17 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, BST_UNCHECKED, 0);
+			assert(_res17 == 0);
 
 			_Internal_Hook_Tab = false;
+			_Internal_Hook_6 = false;
 			_Internal_Hook_Q = false;
 			_Internal_Hook_W = false;
 			_Internal_Hook_E = false;
@@ -1089,6 +1132,13 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		case IDC_TAB:
 		{
 			_Internal_Hook_Tab = (SendDlgItemMessageW(hWnd, IDC_TAB, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_6:
+		{
+			_Internal_Hook_6 = (SendDlgItemMessageW(hWnd, IDC_6, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;

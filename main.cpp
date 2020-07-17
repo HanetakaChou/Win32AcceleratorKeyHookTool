@@ -47,7 +47,6 @@ static bool _Internal_Hook_D = false;
 static bool _Internal_Hook_F = false;
 static bool _Internal_Hook_G = false;
 
-static bool _Internal_Hook_Tilde = false;
 static bool _Internal_Hook_F1 = false;
 static bool _Internal_Hook_F2 = false;
 static bool _Internal_Hook_F3 = false;
@@ -133,7 +132,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 			{
 				if (_Internal_Hook_F4)
 				{
-					return 1; //Hook 'F1'
+					return 1; //Hook 'F4'
 				}
 			}
 		}
@@ -979,24 +978,6 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 		break;
 
 		//-DragonNest----------------------------------  
-		case VK_OEM_3:
-		{
-			assert(pKeyboardLowLevel->vkCode == VK_OEM_3);
-
-			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
-				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
-				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
-				&& !(pKeyboardLowLevel->flags & LLKHF_UP) //Being Pressed
-				)
-			{
-				if (_Internal_Hook_Tilde)
-				{
-					return 1; //Hook Tilde
-				}
-			}
-		}
-		break;
-
 		case VK_F1:
 		{
 			assert(pKeyboardLowLevel->vkCode == VK_F1);
@@ -1261,16 +1242,14 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		LRESULT _res21 = SendDlgItemMessageW(hWnd, IDC_G, BM_SETCHECK, (_Internal_Hook_G ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res21 == 0);
 
-		LRESULT _res22 = SendDlgItemMessageW(hWnd, IDC_TILDE, BM_SETCHECK, (_Internal_Hook_Tilde ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res22 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, (_Internal_Hook_F1 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res22 == 0);
-		LRESULT _res23 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, (_Internal_Hook_F1 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res23 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, (_Internal_Hook_F2 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res23 == 0);
-		LRESULT _res24 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, (_Internal_Hook_F2 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res24 = SendDlgItemMessageW(hWnd, IDC_F3, BM_SETCHECK, (_Internal_Hook_F3 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res24 == 0);
-		LRESULT _res25 = SendDlgItemMessageW(hWnd, IDC_F3, BM_SETCHECK, (_Internal_Hook_F3 ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res25 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, (_Internal_Hook_F4 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res25 == 0);
-		LRESULT _res26 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, (_Internal_Hook_F4 ? BST_CHECKED : BST_UNCHECKED), 0);
-		assert(_res26 == 0);
 
 		_Internal_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
 		assert(_Internal_hHook != NULL);
@@ -1550,18 +1529,15 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_ENABLEDRAGONEST:
 		{
-			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_TILDE, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res1 == 0);
-			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res2 == 0);
-			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_F3, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res3 == 0);
-			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_F3, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res4 == 0);
-			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, BST_CHECKED, 0);
-			assert(_res5 == 0);
 
-			_Internal_Hook_Tilde = true;
 			_Internal_Hook_F1 = true;
 			_Internal_Hook_F2 = true;
 			_Internal_Hook_F3 = true;
@@ -1572,29 +1548,19 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_DISABLEDRAGONEST:
 		{
-			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_TILDE, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res1 == 0);
-			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res2 == 0);
-			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res3 = SendDlgItemMessageW(hWnd, IDC_F3, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res3 == 0);
-			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_F3, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res4 == 0);
-			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, BST_UNCHECKED, 0);
-			assert(_res5 == 0);
 
-			_Internal_Hook_Tilde = false;
 			_Internal_Hook_F1 = false;
 			_Internal_Hook_F2 = false;
 			_Internal_Hook_F3 = false;
 			_Internal_Hook_F4 = false;
-		}
-		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
-		return TRUE;
-
-		case IDC_TILDE:
-		{
-			_Internal_Hook_Tilde = (SendDlgItemMessageW(hWnd, IDC_TILDE, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;

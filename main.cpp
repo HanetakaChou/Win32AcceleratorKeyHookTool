@@ -126,6 +126,16 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					return 1; //Hook 'F4'
 				}
 			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F4)
+				{
+					return 1; //Hook 'F1'
+				}
+			}
 		}
 		break;
 
@@ -974,7 +984,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 			assert(pKeyboardLowLevel->vkCode == VK_OEM_3);
 
 			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
-				&&!(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
 				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
 				&& !(pKeyboardLowLevel->flags & LLKHF_UP) //Being Pressed
 				)
@@ -1041,6 +1051,16 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					return 1; //Hook 'F1'
 				}
 			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F1)
+				{
+					return 1; //Hook 'F1'
+				}
+			}
 		}
 		break;
 
@@ -1098,6 +1118,16 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					return 1; //Hook 'F2'
 				}
 			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F2)
+				{
+					return 1; //Hook 'F2'
+				}
+			}
 		}
 		break;
 
@@ -1152,6 +1182,16 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
+					return 1; //Hook 'F3'
+				}
+			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F3)
+				{
 					return 1; //Hook 'F3'
 				}
 			}

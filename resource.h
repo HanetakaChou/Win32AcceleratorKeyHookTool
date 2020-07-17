@@ -27,6 +27,13 @@
 #define IDC_D                           1021
 #define IDC_F                           1022
 #define IDC_G                           1023
+#define IDC_ENABLEDRAGONEST             1024
+#define IDC_DISABLEDRAGONEST            1025
+#define IDC_TILDE                       1026
+#define IDC_F1                          1027
+#define IDC_F2                          1028
+#define IDC_F3                          1029
+#define IDC_F4                          1030
 
 // Next default values for new objects
 // 

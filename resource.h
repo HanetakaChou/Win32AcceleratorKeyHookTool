@@ -33,6 +33,8 @@
 #define IDC_F2                          1027
 #define IDC_F3                          1028
 #define IDC_F4                          1029
+#define IDC_F5                          1030
+#define IDC_F6                          1031
 
 // Next default values for new objects
 // 

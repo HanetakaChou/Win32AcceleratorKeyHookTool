@@ -51,6 +51,8 @@ static bool _Internal_Hook_F1 = false;
 static bool _Internal_Hook_F2 = false;
 static bool _Internal_Hook_F3 = false;
 static bool _Internal_Hook_F4 = false;
+static bool _Internal_Hook_F5 = false;
+static bool _Internal_Hook_F6 = false;
 
 static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -1179,6 +1181,140 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 		}
 		break;
 
+		case VK_F5:
+		{
+			assert(pKeyboardLowLevel->vkCode == VK_F5);
+
+			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+			{
+				if (_Internal_Hook_F5)
+				{
+					INPUT _inputs[6];
+					_inputs[0].type = INPUT_KEYBOARD;
+					_inputs[0].ki.wVk = VK_OEM_3;
+					_inputs[0].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[0].ki.dwFlags = 0;
+					_inputs[0].ki.time = 0;
+					_inputs[0].ki.dwExtraInfo = 0;
+					_inputs[1].type = INPUT_KEYBOARD;
+					_inputs[1].ki.wVk = VK_OEM_3;
+					_inputs[1].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[1].ki.time = 0;
+					_inputs[1].ki.dwExtraInfo = 0;
+					_inputs[2].type = INPUT_KEYBOARD;
+					_inputs[2].ki.wVk = '5';
+					_inputs[2].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[2].ki.dwFlags = 0;
+					_inputs[2].ki.time = 0;
+					_inputs[2].ki.dwExtraInfo = 0;
+					_inputs[3].type = INPUT_KEYBOARD;
+					_inputs[3].ki.wVk = '5';
+					_inputs[3].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[3].ki.time = 0;
+					_inputs[3].ki.dwExtraInfo = 0;
+					_inputs[4].type = INPUT_KEYBOARD;
+					_inputs[4].ki.wVk = VK_OEM_3;
+					_inputs[4].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[4].ki.dwFlags = 0;
+					_inputs[4].ki.time = 0;
+					_inputs[4].ki.dwExtraInfo = 0;
+					_inputs[5].type = INPUT_KEYBOARD;
+					_inputs[5].ki.wVk = VK_OEM_3;
+					_inputs[5].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[5].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[5].ki.time = 0;
+					_inputs[5].ki.dwExtraInfo = 0;
+					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
+					assert(_res != 0U);
+
+					return 1; //Hook 'F5'
+				}
+			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F5)
+				{
+					return 1; //Hook 'F5'
+				}
+			}
+		}
+		break;
+
+		case VK_F6:
+		{
+			assert(pKeyboardLowLevel->vkCode == VK_F6);
+
+			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+			{
+				if (_Internal_Hook_F6)
+				{
+					INPUT _inputs[6];
+					_inputs[0].type = INPUT_KEYBOARD;
+					_inputs[0].ki.wVk = VK_OEM_3;
+					_inputs[0].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[0].ki.dwFlags = 0;
+					_inputs[0].ki.time = 0;
+					_inputs[0].ki.dwExtraInfo = 0;
+					_inputs[1].type = INPUT_KEYBOARD;
+					_inputs[1].ki.wVk = VK_OEM_3;
+					_inputs[1].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[1].ki.time = 0;
+					_inputs[1].ki.dwExtraInfo = 0;
+					_inputs[2].type = INPUT_KEYBOARD;
+					_inputs[2].ki.wVk = '6';
+					_inputs[2].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[2].ki.dwFlags = 0;
+					_inputs[2].ki.time = 0;
+					_inputs[2].ki.dwExtraInfo = 0;
+					_inputs[3].type = INPUT_KEYBOARD;
+					_inputs[3].ki.wVk = '6';
+					_inputs[3].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[3].ki.time = 0;
+					_inputs[3].ki.dwExtraInfo = 0;
+					_inputs[4].type = INPUT_KEYBOARD;
+					_inputs[4].ki.wVk = VK_OEM_3;
+					_inputs[4].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[4].ki.dwFlags = 0;
+					_inputs[4].ki.time = 0;
+					_inputs[4].ki.dwExtraInfo = 0;
+					_inputs[5].type = INPUT_KEYBOARD;
+					_inputs[5].ki.wVk = VK_OEM_3;
+					_inputs[5].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[5].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[5].ki.time = 0;
+					_inputs[5].ki.dwExtraInfo = 0;
+					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
+					assert(_res != 0U);
+
+					return 1; //Hook 'F6'
+				}
+			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F6)
+				{
+					return 1; //Hook 'F6'
+				}
+			}
+		}
+		break;
+
 		}
 
 	}
@@ -1250,6 +1386,10 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		assert(_res24 == 0);
 		LRESULT _res25 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, (_Internal_Hook_F4 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res25 == 0);
+		LRESULT _res26 = SendDlgItemMessageW(hWnd, IDC_F5, BM_SETCHECK, (_Internal_Hook_F5 ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res26 == 0);
+		LRESULT _res27 = SendDlgItemMessageW(hWnd, IDC_F6, BM_SETCHECK, (_Internal_Hook_F6 ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res27 == 0);
 
 		_Internal_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
 		assert(_Internal_hHook != NULL);
@@ -1537,11 +1677,17 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			assert(_res3 == 0);
 			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res4 == 0);
+			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_F5, BM_SETCHECK, BST_CHECKED, 0);
+			assert(_res5 == 0);
+			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_F6, BM_SETCHECK, BST_CHECKED, 0);
+			assert(_res6 == 0);
 
 			_Internal_Hook_F1 = true;
 			_Internal_Hook_F2 = true;
 			_Internal_Hook_F3 = true;
 			_Internal_Hook_F4 = true;
+			_Internal_Hook_F5 = true;
+			_Internal_Hook_F6 = true;
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
@@ -1556,11 +1702,17 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			assert(_res3 == 0);
 			LRESULT _res4 = SendDlgItemMessageW(hWnd, IDC_F4, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res4 == 0);
+			LRESULT _res5 = SendDlgItemMessageW(hWnd, IDC_F5, BM_SETCHECK, BST_UNCHECKED, 0);
+			assert(_res5 == 0);
+			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_F6, BM_SETCHECK, BST_UNCHECKED, 0);
+			assert(_res6 == 0);
 
 			_Internal_Hook_F1 = false;
 			_Internal_Hook_F2 = false;
 			_Internal_Hook_F3 = false;
 			_Internal_Hook_F4 = false;
+			_Internal_Hook_F5 = false;
+			_Internal_Hook_F6 = false;
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
@@ -1589,6 +1741,20 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		case IDC_F4:
 		{
 			_Internal_Hook_F4 = (SendDlgItemMessageW(hWnd, IDC_F4, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_F5:
+		{
+			_Internal_Hook_F5 = (SendDlgItemMessageW(hWnd, IDC_F5, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_F6:
+		{
+			_Internal_Hook_F6 = (SendDlgItemMessageW(hWnd, IDC_F6, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;

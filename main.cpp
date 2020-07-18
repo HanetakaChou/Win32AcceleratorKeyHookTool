@@ -53,6 +53,7 @@ static bool _Internal_Hook_F3 = false;
 static bool _Internal_Hook_F4 = false;
 static bool _Internal_Hook_F5 = false;
 static bool _Internal_Hook_F6 = false;
+static bool _Internal_Hook_F7 = false;
 
 static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -1315,6 +1316,73 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 		}
 		break;
 
+		case VK_F7:
+		{
+			assert(pKeyboardLowLevel->vkCode == VK_F6);
+
+			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
+			{
+				if (_Internal_Hook_F7)
+				{
+					INPUT _inputs[6];
+					_inputs[0].type = INPUT_KEYBOARD;
+					_inputs[0].ki.wVk = VK_OEM_3;
+					_inputs[0].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[0].ki.dwFlags = 0;
+					_inputs[0].ki.time = 0;
+					_inputs[0].ki.dwExtraInfo = 0;
+					_inputs[1].type = INPUT_KEYBOARD;
+					_inputs[1].ki.wVk = VK_OEM_3;
+					_inputs[1].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[1].ki.time = 0;
+					_inputs[1].ki.dwExtraInfo = 0;
+					_inputs[2].type = INPUT_KEYBOARD;
+					_inputs[2].ki.wVk = 'T';
+					_inputs[2].ki.wScan = 0; //KEYEVENTF_SCANCODE		
+					_inputs[2].ki.dwFlags = 0;
+					_inputs[2].ki.time = 0;
+					_inputs[2].ki.dwExtraInfo = 0;
+					_inputs[3].type = INPUT_KEYBOARD;
+					_inputs[3].ki.wVk = 'T';
+					_inputs[3].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[3].ki.time = 0;
+					_inputs[3].ki.dwExtraInfo = 0;
+					_inputs[4].type = INPUT_KEYBOARD;
+					_inputs[4].ki.wVk = VK_OEM_3;
+					_inputs[4].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[4].ki.dwFlags = 0;
+					_inputs[4].ki.time = 0;
+					_inputs[4].ki.dwExtraInfo = 0;
+					_inputs[5].type = INPUT_KEYBOARD;
+					_inputs[5].ki.wVk = VK_OEM_3;
+					_inputs[5].ki.wScan = 0; //KEYEVENTF_SCANCODE  
+					_inputs[5].ki.dwFlags = KEYEVENTF_KEYUP;
+					_inputs[5].ki.time = 0;
+					_inputs[5].ki.dwExtraInfo = 0;
+					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
+					assert(_res != 0U);
+
+					return 1; //Hook 'F7'
+				}
+			}
+			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
+				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
+				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
+				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
+			{
+				if (_Internal_Hook_F7)
+				{
+					return 1; //Hook 'F7'
+				}
+			}
+		}
+		break;
+
 		}
 
 	}
@@ -1390,6 +1458,8 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		assert(_res26 == 0);
 		LRESULT _res27 = SendDlgItemMessageW(hWnd, IDC_F6, BM_SETCHECK, (_Internal_Hook_F6 ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res27 == 0);
+		LRESULT _res28 = SendDlgItemMessageW(hWnd, IDC_F7, BM_SETCHECK, (_Internal_Hook_F7 ? BST_CHECKED : BST_UNCHECKED), 0);
+		assert(_res28 == 0);
 
 		_Internal_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
 		assert(_Internal_hHook != NULL);
@@ -1404,6 +1474,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		{
 		case IDC_ALTF4:
 		{
+			assert(LOWORD(wParam) == IDC_ALTF4);
 			_Internal_Hook_AltF4 = (SendDlgItemMessageW(hWnd, IDC_ALTF4, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1411,6 +1482,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_ALTTAB:
 		{
+			assert(LOWORD(wParam) == IDC_ALTTAB);
 			_Internal_Hook_AltTab = (SendDlgItemMessageW(hWnd, IDC_ALTTAB, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1418,6 +1490,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_LWIN:
 		{
+			assert(LOWORD(wParam) == IDC_LWIN);
 			_Internal_Hook_LWin = (SendDlgItemMessageW(hWnd, IDC_LWIN, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1425,6 +1498,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_ESC:
 		{
+			assert(LOWORD(wParam) == IDC_ESC);
 			_Internal_Hook_ESC = (SendDlgItemMessageW(hWnd, IDC_ESC, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1432,6 +1506,8 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_ENABLEQQFO:
 		{
+			assert(LOWORD(wParam) == IDC_ENABLEQQFO);
+
 			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_TAB, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res1 == 0);
 			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_6, BM_SETCHECK, BST_CHECKED, 0);
@@ -1490,6 +1566,8 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_DISABLEQQFO:
 		{
+			assert(LOWORD(wParam) == IDC_DISABLEQQFO);
+
 			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_TAB, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res1 == 0);
 			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_6, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -1548,6 +1626,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_TAB:
 		{
+			assert(LOWORD(wParam) == IDC_TAB);
 			_Internal_Hook_Tab = (SendDlgItemMessageW(hWnd, IDC_TAB, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1555,6 +1634,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_6:
 		{
+			assert(LOWORD(wParam) == IDC_6);
 			_Internal_Hook_6 = (SendDlgItemMessageW(hWnd, IDC_6, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1562,6 +1642,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_Q:
 		{
+			assert(LOWORD(wParam) == IDC_Q);
 			_Internal_Hook_Q = (SendDlgItemMessageW(hWnd, IDC_Q, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1570,6 +1651,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_W:
 		{
+			assert(LOWORD(wParam) == IDC_W);
 			_Internal_Hook_W = (SendDlgItemMessageW(hWnd, IDC_W, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1577,6 +1659,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_E:
 		{
+			assert(LOWORD(wParam) == IDC_E);
 			_Internal_Hook_E = (SendDlgItemMessageW(hWnd, IDC_E, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1584,6 +1667,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_R:
 		{
+			assert(LOWORD(wParam) == IDC_R);
 			_Internal_Hook_R = (SendDlgItemMessageW(hWnd, IDC_R, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1591,6 +1675,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_T:
 		{
+			assert(LOWORD(wParam) == IDC_T);
 			_Internal_Hook_T = (SendDlgItemMessageW(hWnd, IDC_T, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1598,6 +1683,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_1:
 		{
+			assert(LOWORD(wParam) == IDC_1);
 			_Internal_Hook_1 = (SendDlgItemMessageW(hWnd, IDC_1, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1605,6 +1691,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_2:
 		{
+			assert(LOWORD(wParam) == IDC_2);
 			_Internal_Hook_2 = (SendDlgItemMessageW(hWnd, IDC_2, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1612,6 +1699,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_3:
 		{
+			assert(LOWORD(wParam) == IDC_3);
 			_Internal_Hook_3 = (SendDlgItemMessageW(hWnd, IDC_3, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1619,6 +1707,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_4:
 		{
+			assert(LOWORD(wParam) == IDC_4);
 			_Internal_Hook_4 = (SendDlgItemMessageW(hWnd, IDC_4, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1626,6 +1715,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_5:
 		{
+			assert(LOWORD(wParam) == IDC_5);
 			_Internal_Hook_5 = (SendDlgItemMessageW(hWnd, IDC_5, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1633,6 +1723,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_A:
 		{
+			assert(LOWORD(wParam) == IDC_A);
 			_Internal_Hook_A = (SendDlgItemMessageW(hWnd, IDC_A, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1641,6 +1732,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_S:
 		{
+			assert(LOWORD(wParam) == IDC_S);
 			_Internal_Hook_S = (SendDlgItemMessageW(hWnd, IDC_S, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1648,6 +1740,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_D:
 		{
+			assert(LOWORD(wParam) == IDC_D);
 			_Internal_Hook_D = (SendDlgItemMessageW(hWnd, IDC_D, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1655,6 +1748,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_F:
 		{
+			assert(LOWORD(wParam) == IDC_F);
 			_Internal_Hook_F = (SendDlgItemMessageW(hWnd, IDC_F, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1662,6 +1756,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_G:
 		{
+			assert(LOWORD(wParam) == IDC_G);
 			_Internal_Hook_G = (SendDlgItemMessageW(hWnd, IDC_G, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1669,6 +1764,8 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_ENABLEDRAGONEST:
 		{
+			assert(LOWORD(wParam) == IDC_ENABLEDRAGONEST);
+
 			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res1 == 0);
 			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, BST_CHECKED, 0);
@@ -1681,6 +1778,8 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			assert(_res5 == 0);
 			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_F6, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res6 == 0);
+			LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_F7, BM_SETCHECK, BST_CHECKED, 0);
+			assert(_res7 == 0);
 
 			_Internal_Hook_F1 = true;
 			_Internal_Hook_F2 = true;
@@ -1688,12 +1787,15 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			_Internal_Hook_F4 = true;
 			_Internal_Hook_F5 = true;
 			_Internal_Hook_F6 = true;
+			_Internal_Hook_F7 = true;
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
 
 		case IDC_DISABLEDRAGONEST:
 		{
+			assert(LOWORD(wParam) == IDC_DISABLEDRAGONEST);
+
 			LRESULT _res1 = SendDlgItemMessageW(hWnd, IDC_F1, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res1 == 0);
 			LRESULT _res2 = SendDlgItemMessageW(hWnd, IDC_F2, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -1706,6 +1808,8 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			assert(_res5 == 0);
 			LRESULT _res6 = SendDlgItemMessageW(hWnd, IDC_F6, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res6 == 0);
+			LRESULT _res7 = SendDlgItemMessageW(hWnd, IDC_F7, BM_SETCHECK, BST_UNCHECKED, 0);
+			assert(_res7 == 0);
 
 			_Internal_Hook_F1 = false;
 			_Internal_Hook_F2 = false;
@@ -1713,12 +1817,14 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			_Internal_Hook_F4 = false;
 			_Internal_Hook_F5 = false;
 			_Internal_Hook_F6 = false;
+			_Internal_Hook_F7 = false;
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
 
 		case IDC_F1:
 		{
+			assert(LOWORD(wParam) == IDC_F1);
 			_Internal_Hook_F1 = (SendDlgItemMessageW(hWnd, IDC_F1, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1726,6 +1832,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_F2:
 		{
+			assert(LOWORD(wParam) == IDC_F2);
 			_Internal_Hook_F2 = (SendDlgItemMessageW(hWnd, IDC_F2, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1733,6 +1840,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_F3:
 		{
+			assert(LOWORD(wParam) == IDC_F3);
 			_Internal_Hook_F3 = (SendDlgItemMessageW(hWnd, IDC_F3, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1740,6 +1848,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_F4:
 		{
+			assert(LOWORD(wParam) == IDC_F4);
 			_Internal_Hook_F4 = (SendDlgItemMessageW(hWnd, IDC_F4, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1747,6 +1856,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_F5:
 		{
+			assert(LOWORD(wParam) == IDC_F5);
 			_Internal_Hook_F5 = (SendDlgItemMessageW(hWnd, IDC_F5, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
@@ -1754,7 +1864,16 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 		case IDC_F6:
 		{
+			assert(LOWORD(wParam) == IDC_F6);
 			_Internal_Hook_F6 = (SendDlgItemMessageW(hWnd, IDC_F6, BM_GETCHECK, 0, 0) == BST_CHECKED);
+		}
+		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
+		return TRUE;
+
+		case IDC_F7:
+		{
+			assert(LOWORD(wParam) == IDC_F7);
+			_Internal_Hook_F7 = (SendDlgItemMessageW(hWnd, IDC_F7, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;

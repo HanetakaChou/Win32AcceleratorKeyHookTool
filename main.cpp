@@ -58,7 +58,7 @@ static bool _Internal_Hook_R_DragonNest = false;
 static bool _Internal_Hook_T_DragonNest = false;
 static bool _Internal_Hook_F_DragonNest = false;
 static bool _Internal_Hook_G_DragonNest = false;
-static bool _Internal_Hook_H_DragonNest = false;
+static bool _Internal_Hook_V_DragonNest = false;
 
 static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -1609,16 +1609,16 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 		}
 		break;
 
-		case 'H':
+		case 'V':
 		{
-			assert(pKeyboardLowLevel->vkCode == 'H');
+			assert(pKeyboardLowLevel->vkCode == 'V');
 
 			if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
 				&& !(pKeyboardLowLevel->flags & LLKHF_INJECTED) //From the local keyboard driver //Not from calls to the keybd_event function
 				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
 				&& !(pKeyboardLowLevel->flags & LLKHF_UP)) //Being Pressed
 			{
-				if (_Internal_Hook_H_DragonNest)
+				if (_Internal_Hook_V_DragonNest)
 				{
 					INPUT _inputs[6];
 					_inputs[0].type = INPUT_KEYBOARD;
@@ -1660,7 +1660,7 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 					UINT _res = SendInput(6, _inputs, sizeof(INPUT));
 					assert(_res != 0U);
 
-					return 1; //Hook 'H'
+					return 1; //Hook 'V'
 				}
 			}
 			else if (!(pKeyboardLowLevel->flags & LLKHF_EXTENDED) //Not Extended Key
@@ -1668,9 +1668,9 @@ static LRESULT CALLBACK _Internal_LowLevelKeyboardProc(int nCode, WPARAM wParam,
 				&& !(pKeyboardLowLevel->flags & LLKHF_ALTDOWN) //ALT Key Not Pressed
 				&& (pKeyboardLowLevel->flags & LLKHF_UP)) //Being Released
 			{
-				if (_Internal_Hook_H_DragonNest)
+				if (_Internal_Hook_V_DragonNest)
 				{
-					return 1; //Hook 'H'
+					return 1; //Hook 'V'
 				}
 			}
 		}
@@ -1761,7 +1761,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		assert(_res31 == 0);
 		LRESULT _res32 = SendDlgItemMessageW(hWnd, IDC_G_DRAGONEST, BM_SETCHECK, (_Internal_Hook_G_DragonNest ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res32 == 0);
-		LRESULT _res33 = SendDlgItemMessageW(hWnd, IDC_H_DRAGONEST, BM_SETCHECK, (_Internal_Hook_H_DragonNest ? BST_CHECKED : BST_UNCHECKED), 0);
+		LRESULT _res33 = SendDlgItemMessageW(hWnd, IDC_V_DRAGONEST, BM_SETCHECK, (_Internal_Hook_V_DragonNest ? BST_CHECKED : BST_UNCHECKED), 0);
 		assert(_res33 == 0);
 
 		_Internal_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, &_Internal_LowLevelKeyboardProc, NULL, 0U);
@@ -2091,7 +2091,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			assert(_res10 == 0);
 			LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_G_DRAGONEST, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res11 == 0);
-			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_H_DRAGONEST, BM_SETCHECK, BST_CHECKED, 0);
+			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_V_DRAGONEST, BM_SETCHECK, BST_CHECKED, 0);
 			assert(_res12 == 0);
 
 			_Internal_Hook_F1 = true;
@@ -2105,7 +2105,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			_Internal_Hook_T_DragonNest = true;
 			_Internal_Hook_F_DragonNest = true;
 			_Internal_Hook_G_DragonNest = true;
-			_Internal_Hook_H_DragonNest = true;
+			_Internal_Hook_V_DragonNest = true;
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
@@ -2136,7 +2136,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			assert(_res10 == 0);
 			LRESULT _res11 = SendDlgItemMessageW(hWnd, IDC_G_DRAGONEST, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res11 == 0);
-			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_H_DRAGONEST, BM_SETCHECK, BST_UNCHECKED, 0);
+			LRESULT _res12 = SendDlgItemMessageW(hWnd, IDC_V_DRAGONEST, BM_SETCHECK, BST_UNCHECKED, 0);
 			assert(_res12 == 0);
 
 			_Internal_Hook_F1 = false;
@@ -2150,7 +2150,7 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			_Internal_Hook_T_DragonNest = false;
 			_Internal_Hook_F_DragonNest = false;
 			_Internal_Hook_G_DragonNest = false;
-			_Internal_Hook_H_DragonNest = false;
+			_Internal_Hook_V_DragonNest = false;
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
@@ -2243,10 +2243,10 @@ static INT_PTR CALLBACK _Internal_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;
 
-		case IDC_H_DRAGONEST:
+		case IDC_V_DRAGONEST:
 		{
-			assert(LOWORD(wParam) == IDC_H_DRAGONEST);
-			_Internal_Hook_H_DragonNest = (SendDlgItemMessageW(hWnd, IDC_H_DRAGONEST, BM_GETCHECK, 0, 0) == BST_CHECKED);
+			assert(LOWORD(wParam) == IDC_V_DRAGONEST);
+			_Internal_Hook_V_DragonNest = (SendDlgItemMessageW(hWnd, IDC_V_DRAGONEST, BM_GETCHECK, 0, 0) == BST_CHECKED);
 		}
 		SetWindowLongPtrW(hWnd, DWLP_MSGRESULT, 0);
 		return TRUE;

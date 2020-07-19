@@ -40,6 +40,7 @@
 #define IDC_T_DRAGONEST                 1034
 #define IDC_F_DRAGONEST                 1035
 #define IDC_G_DRAGONEST                 1036
+#define IDC_H_DRAGONEST                 1037
 
 // Next default values for new objects
 // 

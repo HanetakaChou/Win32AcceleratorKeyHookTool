@@ -14,8 +14,8 @@
 #define IDC_Q                           1008
 #define IDC_W                           1009
 #define IDC_E                           1010
-#define IDC_R                           1011
-#define IDC_T                           1012
+#define IDC_R_QQFO                      1011
+#define IDC_T_QQFO                      1012
 #define IDC_1                           1013
 #define IDC_2                           1014
 #define IDC_3                           1015
@@ -25,8 +25,8 @@
 #define IDC_A                           1019
 #define IDC_S                           1020
 #define IDC_D                           1021
-#define IDC_F                           1022
-#define IDC_G                           1023
+#define IDC_F_QQFO                      1022
+#define IDC_G_QQFO                      1023
 #define IDC_ENABLEDRAGONEST             1024
 #define IDC_DISABLEDRAGONEST            1025
 #define IDC_F1                          1026
@@ -36,6 +36,10 @@
 #define IDC_F5                          1030
 #define IDC_F6                          1031
 #define IDC_F7                          1032
+#define IDC_R_DRAGONEST                 1033
+#define IDC_T_DRAGONEST                 1034
+#define IDC_F_DRAGONEST                 1035
+#define IDC_G_DRAGONEST                 1036
 
 // Next default values for new objects
 // 
